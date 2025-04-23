@@ -1,0 +1,99 @@
+---
+title: "Presentación de Resultados"
+author: "Maria José Casassola y Alejandro Milián"
+date: "2025-04-13"
+output: html_document
+---
+
+---
+title: "Visualización del Modelo Predictivo"
+output: html_document
+---
+
+```{=html}
+<style>
+h1 {
+  text-align: center;
+}
+table, th, td {
+  border: 1px solid gray;
+  border-collapse: collapse;
+  padding: 5px;
+  text-align: center;
+}
+th {
+  background-color: #f2f2f2;
+}
+</style>
+```
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(here)
+library(purrr)
+knitr::opts_chunk$set(echo=FALSE)
+knitr::opts_chunk$set(warning=FALSE)
+knitr::opts_chunk$set(message =FALSE)
+```
+
+```{r cargar-datos}
+# Cargar serie real
+read_csv(here("Output", "comparacion.csv"))|>
+  select(-...1) -> data
+
+# Separar los registros anteriores al día de hoy
+prev_data <- data %>%
+  filter(date < Sys.Date()) %>%
+  drop_na()
+
+# Extraer los registros correspondientes al día de hoy (sin aplicar drop_na)
+today_data <- data %>%
+  filter(date >= Sys.Date())
+
+# Unir ambos subconjuntos para formar el data frame final
+serie_larga <- bind_rows(prev_data, today_data)
+
+```
+
+```{r grafico-principal, fig.height=5, fig.width=8, fig.align='center',dpi=300}
+
+# Graficar real + modelos
+ggplot(serie_larga, aes(x = as.Date(date))) +
+  geom_line(aes(y = real), color = "black", linewidth = 1) +
+  geom_line(aes(y = pred, color = modelo), linewidth = 1) +
+  labs(title = "Comparación de Predicciones de Modelos",
+       x = "Fecha",
+       y = "Precio",
+       color = "Modelo") +
+  theme_bw()+
+  theme(
+    legend.position = "bottom"
+  )
+```
+
+```{r comeone}
+
+export <- read_csv(here("Output","series.csv"))
+
+export |>
+  select(-...1)|>
+  filter(!is.na(real)) %>%
+  arrange(desc(date)) %>%
+  slice_head(n = 3) ->export
+
+```
+
+```{r lol}
+knitr::kable(export, digits = 3, caption = "Últimos Registros")
+```
+
+### Métricas
+
+-   **MAE:** *Mean Absolute Error*. Error Absoluto de la Media.
+
+```{r tabla}
+
+tabla_metrica <- read.csv(here("Output","metricas_comparacion.csv"))
+
+knitr::kable(tabla_metrica, digits = 3, caption = "Tabla de Métricas")
+```

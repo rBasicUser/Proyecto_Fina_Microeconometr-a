@@ -26,7 +26,6 @@ th {
 }
 </style>
 ```
-
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(here)
@@ -90,6 +89,7 @@ knitr::kable(export, digits = 3, caption = "Últimos Registros")
 ### Métricas
 
 -   **MAE:** *Mean Absolute Error*. Error Absoluto de la Media.
+-   RS
 
 ```{r tabla}
 
@@ -97,3 +97,12 @@ tabla_metrica <- read.csv(here("Output","metricas_comparacion.csv"))
 
 knitr::kable(tabla_metrica, digits = 3, caption = "Tabla de Métricas")
 ```
+
+Comparación entre Modelo 2 y Modelo 3
+
+| **Aspecto**                    | **Modelo 2** (*vol ×4*)                                | **Modelo 3** (*MC clásico*)                                  |
+|--------------------------------|--------------------------------------------------------|--------------------------------------------------------------|
+| **Cálculo de retornos**        | `diff(log(precios))`                                   | `diff(log(precios))`                                         |
+| **Tratamiento de volatilidad** | `new_sd = sd(retornos) * 4` – amplificación artificial | `sd_ret = sd(retornos)` – volatilidad histórica sin ajuste   |
+| **Cálculo de drift**           | `drift = media_ret - 0.5 * new_sd^2`                   | Implícito: se usa `mean = media_ret` directamente en `rnorm` |
+| **Número de simulaciones**     | 150 trayectorias                                       | 100 000 trayectorias                                         |

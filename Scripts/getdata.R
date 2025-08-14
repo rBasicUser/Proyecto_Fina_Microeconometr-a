@@ -55,7 +55,7 @@ if (is.null(data_raw$data) || length(data_raw$data) == 0) {
 }
 
 # --- PROCESAR Y LIMPIAR ---
-nueva_data <- map_dfr(data_raw$data, as_tibble) %>%
+nueva_data <- bind_rows(data_raw$data) %>%
   select(date, symbol, open, high, low, close, volume) %>%
   mutate(date = as.Date(date)) %>%
   arrange(date)
